@@ -9,7 +9,7 @@ Biometric fingerprinting scanners take several reference points on a person's fi
 
 ### Prerequisities
 
-C# <https://www.visualstudio.com/downloads/>
+C# <https://www.visualstudio.com/downloads/>  
 SourceAFIS 1.7.0 SDK <http://www.sourceafis.org/blog/>
 
 ### Setting Up
