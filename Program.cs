@@ -58,24 +58,22 @@ namespace AFIS {
             string output = "";
             foreach (string file in Directory.GetFiles(dir_1, "*")) {
                 Parallel.ForEach(Directory.GetFiles(dir_2, "*"), (image) => {
-                    if (file == image) {
-                        Fingerprint fp = new Fingerprint();
-                        fp.AsBitmapSource = new BitmapImage(new Uri(file, UriKind.RelativeOrAbsolute));
-                        Person person = new Person();
-                        person.Fingerprints.Add(fp);
-                        engine.Extract(person);
+                    Fingerprint fp = new Fingerprint();
+                    fp.AsBitmapSource = new BitmapImage(new Uri(file, UriKind.RelativeOrAbsolute));
+                    Person person = new Person();
+                    person.Fingerprints.Add(fp);
+                    engine.Extract(person);
 
-                        Fingerprint cfp = new Fingerprint();
-                        cfp.AsBitmapSource = new BitmapImage(new Uri(file, UriKind.RelativeOrAbsolute));
-                        Person comparison = new Person();
-                        comparison.Fingerprints.Add(cfp);
-                        engine.Extract(comparison);
+                    Fingerprint cfp = new Fingerprint();
+                    cfp.AsBitmapSource = new BitmapImage(new Uri(file, UriKind.RelativeOrAbsolute));
+                    Person comparison = new Person();
+                    comparison.Fingerprints.Add(cfp);
+                    engine.Extract(comparison);
 
-                        float score = engine.Verify(person, comparison);
-                        bool match = (score > 0);
-                        if (match) { Console.WriteLine(file + " ~ " + image + " Score: " + score); }
-                        output += file + "," + image + "," + score + "\n";
-                    }
+                    float score = engine.Verify(person, comparison);
+                    bool match = (score > 0);
+                    if (match) { Console.WriteLine(file + " ~ " + image + " Score: " + score); }
+                    output += file + "," + image + "," + score + "\n";
                 });
             }
             return output;
