@@ -30,6 +30,7 @@ namespace AFIS {
                 p.Id = i;
                 persons.Add(p);
             }
+            Console.WriteLine("\tReading images...");
             foreach (string file in Directory.GetFiles(dir, "*")) {
                 string image = file.Split(delim)[file.Split(delim).Length - 1];
                 int index = -1;
@@ -38,12 +39,17 @@ namespace AFIS {
                 fp.AsBitmapSource = new BitmapImage(new Uri(file, UriKind.RelativeOrAbsolute));
                 persons[index - 1].Fingerprints.Add(fp);
             }
-            foreach (Person p in persons) { engine.Extract(p); }
+            int counter = 0;
+            Console.WriteLine("\tExtracting persons...");
+            Parallel.ForEach(persons, (p) => { engine.Extract(p); Console.WriteLine(++counter); });
+            counter = 0;
+            Console.WriteLine("\tVerifing comparisons...");
             foreach (Person p in persons) {
-                foreach (Person c in persons) {
+                Parallel.ForEach(persons, (c) => {
                     float score = engine.Verify(p, c);
                     output += p.Id.ToString() + "," + c.Id.ToString() + "," + score + "\n";
-                }
+                    Console.WriteLine(++counter + "\t/ " + (persons.Count * persons.Count));
+                });
             }
             return output;
         }
@@ -51,25 +57,26 @@ namespace AFIS {
         static public string dir_cmp(string dir_1, string dir_2) {
             string output = "";
             foreach (string file in Directory.GetFiles(dir_1, "*")) {
-                Console.WriteLine(file);
-                Fingerprint fp = new Fingerprint();
-                fp.AsBitmapSource = new BitmapImage(new Uri(file, UriKind.RelativeOrAbsolute));
-                Person person = new Person();
-                person.Fingerprints.Add(fp);
-                engine.Extract(person);
-                foreach (string image in Directory.GetFiles(dir_2, "*")) {
-                    if (file != image) {
+                Parallel.ForEach(Directory.GetFiles(dir_2, "*"), (image) => {
+                    if (file == image) {
+                        Fingerprint fp = new Fingerprint();
+                        fp.AsBitmapSource = new BitmapImage(new Uri(file, UriKind.RelativeOrAbsolute));
+                        Person person = new Person();
+                        person.Fingerprints.Add(fp);
+                        engine.Extract(person);
+
                         Fingerprint cfp = new Fingerprint();
                         cfp.AsBitmapSource = new BitmapImage(new Uri(file, UriKind.RelativeOrAbsolute));
                         Person comparison = new Person();
                         comparison.Fingerprints.Add(cfp);
                         engine.Extract(comparison);
+
                         float score = engine.Verify(person, comparison);
                         bool match = (score > 0);
                         if (match) { Console.WriteLine(file + " ~ " + image + " Score: " + score); }
                         output += file + "," + image + "," + score + "\n";
                     }
-                }
+                });
             }
             return output;
         }
@@ -77,36 +84,36 @@ namespace AFIS {
         static void Main(string[] args) {
             string DB1_a_fullprint = "C:/Users/mramd/Documents/Fingerprinting/DB1_a_fullprint";
             string Db1_a_partial_dataset = "C:/Users/mramd/Documents/Fingerprinting/Db1_a_partial_dataset";
-            
+
             string full_full = null;
             string part_part = null;
             string full_part = null;
             string full_person = null;
             string part_person = null;
 
-            //var t1 = new Thread(() => { full_full = dir_cmp(DB1_a_fullprint, DB1_a_fullprint); });
+            var t1 = new Thread(() => { full_full = dir_cmp(DB1_a_fullprint, DB1_a_fullprint); });
             //var t2 = new Thread(() => { part_part = dir_cmp(Db1_a_partial_dataset, Db1_a_partial_dataset); });
             //var t3 = new Thread(() => { full_part = dir_cmp(DB1_a_fullprint, Db1_a_partial_dataset); });
-            var t4 = new Thread(() => { full_person = person_cmp(DB1_a_fullprint); });
-            var t5 = new Thread(() => { part_person = person_cmp(Db1_a_partial_dataset); });
+            //var t4 = new Thread(() => { full_person = person_cmp(DB1_a_fullprint); });
+            //var t5 = new Thread(() => { part_person = person_cmp(Db1_a_partial_dataset); });
 
-            //t1.Start();
+            t1.Start();
             //t2.Start();
             //t3.Start();
-            t4.Start();
-            t5.Start();
+            //t4.Start();
+            //t5.Start();
 
-            //t1.Join();
+            t1.Join();
             //t2.Join();
             //t3.Join();
-            t4.Join();
-            t5.Join();
+            //t4.Join();
+            //t5.Join();
 
-            //write(ref full_full, "full_full.csv");
+            write(ref full_full, "full_full.csv");
             //write(ref part_part, "part_part.csv");
             //write(ref full_part, "full_part.csv");
-            write(ref full_person, "full_person.csv");
-            write(ref part_person, "part_person.csv");
+            //write(ref full_person, "full_person.csv");
+            //write(ref part_person, "part_person.csv");
 
 
 
