@@ -10,7 +10,7 @@ Biometric fingerprinting scanners take several reference points on a person's fi
 ### Prerequisities
 
 C# <https://www.visualstudio.com/downloads/>  
-SourceAFIS 1.7.0 SDK <http://www.sourceafis.org/blog/>
+SourceAFIS 1.7.0 SDK <https://sourceafis.angeloflogic.com/>
 
 ### Setting Up
 
@@ -42,4 +42,4 @@ General output format will include both benign and malicious results.
   
 ### References
 SourceAFIS. N.p., n.d. Web. 28 Nov. 2016.  
-<http://www.sourceafis.org/blog/>.
+<https://sourceafis.angeloflogic.com/>.
